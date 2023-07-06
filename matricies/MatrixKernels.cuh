@@ -34,6 +34,7 @@ namespace Oliver {
 	cudaError_t cudaInv(Matrix* a, int device);
 	cudaError_t cudaExp(Matrix* a, int device);
 	cudaError_t cudaLog(Matrix* a, int device);
+	cudaError_t cudaHeaviside(Matrix* a, int device);
 	cudaError_t cudaAddBias(Matrix* a, Matrix* b, int device);
 	cudaError_t cudaScalarMax(Matrix* a, float b, int device);
 	cudaError_t cudaTranspose(Matrix* a, Matrix* out, int device);

@@ -67,10 +67,9 @@ namespace Oliver {
 			throw NetworkException("invalid input, previous gradient, and output gradient matrix sizes for layer");
 		}
 
-		// Calculate max(x, 0)/max(x, 0) * grad.
+		// Calculate heaviside(input) * grad.
 		memcpy(prevGrad->buf(), m_inputCache->buf(), m_inputCache->rows() * m_inputCache->cols() * sizeof(float));
-		prevGrad->max(0.0, device);
-		prevGrad->div(prevGrad, device);
+		prevGrad->heaviside(device);
 		prevGrad->mul(outputGrad, device);
 		
 		delete m_inputCache;

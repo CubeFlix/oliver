@@ -758,6 +758,60 @@ namespace Oliver {
         return cudaStatus;
     }
 
+    // Matrix heaviside kernel.
+    __global__ void heavisideKernel(float* a, const unsigned int rows, const unsigned int cols) {
+        int rowIdx = threadIdx.y + blockIdx.y * blockDim.y;
+        int colIdx = threadIdx.x + blockIdx.x * blockDim.x;
+
+        if (rowIdx < rows && colIdx < cols) {
+            int i = colIdx + rowIdx * cols;
+            a[i] = step(0.0, a[i]);
+        }
+    }
+
+    // GPU matrix heaviside function.
+    cudaError_t cudaHeaviside(Matrix* a, int device) {
+        float* dev_a = 0;
+        size_t s = a->rows() * a->cols() * sizeof(float);
+        cudaError_t cudaStatus;
+
+        // Move data to the device.
+        cudaStatus = cudaSetDevice(device);
+        if (cudaStatus != cudaSuccess) {
+            goto Error;
+        }
+        cudaStatus = cudaAllocCopy(((void**)&dev_a), a->buf(), s);
+        if (cudaStatus != cudaSuccess) {
+            goto Error;
+        }
+
+        // Calculate the thread and block dimensions.
+        const dim3 threadsPerBlock(BLOCK_SIZE, BLOCK_SIZE);
+        const dim3 blocksPerGrid((a->cols() + BLOCK_SIZE - 1) / BLOCK_SIZE, (a->rows() + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+        // Run the kernel.
+        heavisideKernel << <blocksPerGrid, threadsPerBlock >> > (dev_a, a->rows(), a->cols());
+
+        // Clean up.
+        cudaStatus = cudaGetLastError();
+        if (cudaStatus != cudaSuccess) {
+            goto Error;
+        }
+        cudaStatus = cudaDeviceSynchronize();
+        if (cudaStatus != cudaSuccess) {
+            goto Error;
+        }
+        cudaStatus = cudaMemcpy(a->buf(), dev_a, s, cudaMemcpyDeviceToHost);
+        if (cudaStatus != cudaSuccess) {
+            goto Error;
+        }
+
+    Error:
+        cudaFree(dev_a);
+
+        return cudaStatus;
+    }
+
     // Matrix add bias kernel.
     __global__ void addBiasKernel(float* a, const float* b, const unsigned int rows, const unsigned int cols) {
         int rowIdx = threadIdx.y + blockIdx.y * blockDim.y;

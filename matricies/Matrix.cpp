@@ -143,6 +143,13 @@ namespace Oliver {
 		}
 	}
 
+	void Matrix::heaviside(int device) {
+		cudaError_t cudaError = cudaHeaviside(this, device);
+		if (cudaError != cudaSuccess) {
+			throw CUDAException(cudaError);
+		}
+	}
+
 	void Matrix::addBias(Matrix* x, int device) {
 		// Ensure the dimensions match.
 		if (m_cols != x->cols()) {

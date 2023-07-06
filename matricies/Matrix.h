@@ -27,8 +27,8 @@ namespace Oliver {
 		Matrix(unsigned const int rows, unsigned const int cols);
 		~Matrix();
 
-		unsigned const int rows();
-		unsigned const int cols();
+		unsigned int rows();
+		unsigned int cols();
 		float* buf();
 
 		void add(Matrix *x, int device);
@@ -44,6 +44,7 @@ namespace Oliver {
 		void inv(int device);
 		void exp(int device);
 		void log(int device);
+		void heaviside(int device);
 		void addBias(Matrix* x, int device);
 		void max(float x, int device);
 
