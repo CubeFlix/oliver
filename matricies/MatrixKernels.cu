@@ -765,7 +765,12 @@ namespace Oliver {
 
         if (rowIdx < rows && colIdx < cols) {
             int i = colIdx + rowIdx * cols;
-            a[i] = step(0.0, a[i]);
+            if (a[i] > 0.0) {
+                a[i] = 1.0;
+            }
+            else {
+                a[i] = 0.0;
+            }
         }
     }
 

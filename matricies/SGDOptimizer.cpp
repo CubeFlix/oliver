@@ -17,9 +17,9 @@ namespace Oliver {
 
 	void SGDOptimizer::update(int device) {
 		// TODO: momentum, decay, etc.
-		Matrix* deltaX = m_x->copy();
+		Matrix* deltaX = m_xGrad->copy();
 		deltaX->mul(m_learningRate, device);
-		m_xGrad->sub(deltaX, device);
+		m_x->sub(deltaX, device);
 		delete deltaX;
 	}
 }

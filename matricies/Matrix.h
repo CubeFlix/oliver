@@ -27,8 +27,8 @@ namespace Oliver {
 		Matrix(unsigned const int rows, unsigned const int cols);
 		~Matrix();
 
-		unsigned int rows();
-		unsigned int cols();
+		unsigned const int rows();
+		unsigned const int cols();
 		float* buf();
 
 		void add(Matrix *x, int device);

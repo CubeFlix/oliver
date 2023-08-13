@@ -5,9 +5,11 @@
 #include "Initializer.h"
 #include "MeanSquaredLoss.h"
 #include "Network.h"
+#include "Model.h"
+#include "SGDOptimizer.h"
 
-#define SIZE 100
-#define INPUTSIZE 10
+#define SIZE 1
+#define INPUTSIZE 5
 #define OUTPUTSIZE 5
 
 using namespace Oliver;
@@ -39,9 +41,9 @@ int main() {
 		delete b;
 		delete c;*/
 
-		HeInitializer weightInit = HeInitializer();
+		/*HeInitializer weightInit = HeInitializer();
 		ZerosInitializer biasInit = ZerosInitializer();
-		SGDOptimizerSettings optSettings = SGDOptimizerSettings(0.01);
+		SGDOptimizerSettings optSettings = SGDOptimizerSettings(0.05);
 		Layer* l = new DenseLayer(INPUTSIZE, OUTPUTSIZE, &weightInit, &biasInit);
 		Loss* mse = new MeanSquaredLoss(OUTPUTSIZE);
 
@@ -55,7 +57,18 @@ int main() {
 		Matrix* inGrad = new Matrix(SIZE, INPUTSIZE);
 		Matrix* loss = new Matrix(SIZE, 1);
 		Matrix* y = new Matrix(1, OUTPUTSIZE);
-		y->sub(y, 0);
+
+		input->buf()[0] = 1;
+		input->buf()[1] = 2;
+		input->buf()[2] = 3;
+		input->buf()[3] = 4;
+		input->buf()[4] = 5;
+
+		y->buf()[0] = 2;
+		y->buf()[1] = 4;
+		y->buf()[2] = 6;
+		y->buf()[3] = 8;
+		y->buf()[4] = 10;
 
 		l->forward(input, output, 0);
 		std::cout << "forward layer done" << std::endl;
@@ -65,7 +78,33 @@ int main() {
 		l->backward(outGrad, inGrad, 0);
 		l->update(0);
 
-		std::cout << loss->buf()[0] << " " << y->buf()[0];
+		std::cout << "loss: " << loss->buf()[0] << std::endl;
+		std::cout << "out[0]: " << output->buf()[0] << std::endl;
+		std::cout << "y[0]: " << y->buf()[0] << std::endl;
+
+		l->forward(input, output, 0);
+		std::cout << "forward layer done" << std::endl;
+		mse->forward(output, y, loss, 0);
+		std::cout << "forward done" << std::endl;
+		mse->backward(y, outGrad, 0);
+		l->backward(outGrad, inGrad, 0);
+		l->update(0);
+
+		std::cout << "loss: " << loss->buf()[0] << std::endl;
+		std::cout << "out[0]: " << output->buf()[0] << std::endl;
+		std::cout << "y[0]: " << y->buf()[0] << std::endl;
+
+		l->forward(input, output, 0);
+		std::cout << "forward layer done" << std::endl;
+		mse->forward(output, y, loss, 0);
+		std::cout << "forward done" << std::endl;
+		mse->backward(y, outGrad, 0);
+		l->backward(outGrad, inGrad, 0);
+		l->update(0);
+
+		std::cout << "loss: " << loss->buf()[0] << std::endl;
+		std::cout << "out[0]: " << output->buf()[0] << std::endl;
+		std::cout << "y[0]: " << y->buf()[0] << std::endl;
 
 		delete input;
 		delete output;
@@ -74,7 +113,31 @@ int main() {
 		delete loss;
 		delete y;
 		delete l;
-		delete mse;
+		delete mse;*/
+
+		HeInitializer weightInit = HeInitializer();
+		ZerosInitializer biasInit = ZerosInitializer();
+
+		Model m = Model();
+		DenseLayer* l1 = new DenseLayer(1, 5, &weightInit, &biasInit);
+		DenseLayer* l2 = new DenseLayer(5, 2, &weightInit, &biasInit);
+		m.addLayer(l1);
+		m.addLayer(l2);
+
+		MeanSquaredLoss* loss = new MeanSquaredLoss(2);
+		m.finalize(loss);
+
+		OptimizerSettings* opt = &SGDOptimizerSettings(0.01);
+		m.initTraining(opt);
+
+		Matrix* input = new Matrix(5, 1);
+		Matrix* y = new Matrix(5, 2);
+		Matrix* outloss = new Matrix(1, 2);
+		float avgl = m.forward(input, y, outloss, 0);
+
+		delete input;
+		delete y;
+		delete outloss;
 	}
 	catch (NetworkException e) {
 		std::cout << e.what() << std::endl;

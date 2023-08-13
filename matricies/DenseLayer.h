@@ -32,8 +32,8 @@ namespace Oliver {
 		Matrix* m_weights;
 		Matrix* m_biases;
 		Matrix* m_inputCache;
-		Matrix* m_weightGrad;
-		Matrix* m_biasGrad;
+	public: Matrix* m_weightGrad;
+	public: Matrix* m_biasGrad;
 		Optimizer* m_weightOpt;
 		Optimizer* m_biasOpt;
 

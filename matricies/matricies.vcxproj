@@ -77,7 +77,6 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
     <CudaCompile Include="MatrixKernels.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +88,7 @@
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MatrixKernels.cuh" />
     <ClInclude Include="MeanSquaredLoss.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Optimizer.h" />
     <ClInclude Include="RELULayer.h" />
@@ -101,6 +101,7 @@
     <ClCompile Include="Loss.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MeanSquaredLoss.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Optimizer.cpp" />
     <ClCompile Include="RELULayer.cpp" />
