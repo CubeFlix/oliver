@@ -29,12 +29,12 @@ namespace Oliver {
 		}
 
 		// Check that the y dimensions match.
-		if (y->rows() != 1 || input->cols() != y->cols()) {
+		if (y->rows() != input->rows() || input->cols() != y->cols()) {
 			throw NetworkException("invalid loss y dimensions");
 		}
 
 		// Check that the output matrix dimensions match.
-		if (outputLoss->rows() != input->rows()) {
+		if (outputLoss->rows() != input->rows() || outputLoss->cols() != 1) {
 			throw NetworkException("invalid loss output matrix dimensions");
 		}
 
@@ -43,7 +43,7 @@ namespace Oliver {
 		// Calculate (y - y_hat)^2.
 		Matrix* temp = input->copy();
 		temp->neg(device);
-		temp->addBias(y, device);
+		temp->add(y, device);
 		temp->pow(2.0, device);
 
 		// Average the loss.
@@ -75,14 +75,14 @@ namespace Oliver {
 		}
 
 		// Check that the y dimensions match.
-		if (y->rows() != 1 || prevGrad->cols() != y->cols()) {
+		if (y->rows() != prevGrad->rows() || prevGrad->cols() != y->cols()) {
 			throw NetworkException("invalid loss y dimensions");
 		}
 
 		// Calculate -2 * (y - y_hat), average and normalize.
 		memcpy(prevGrad->buf(), m_inputCache->buf(), m_inputCache->rows() * m_inputCache->cols() * sizeof(float));
 		prevGrad->neg(device);
-		prevGrad->addBias(y, device);
+		prevGrad->add(y, device);
 		prevGrad->mul(-2.0 / ((float)m_inputSize) / ((float)m_inputCache->rows()), device);
 		
 		delete m_inputCache;

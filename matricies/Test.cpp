@@ -132,8 +132,12 @@ int main() {
 
 		Matrix* input = new Matrix(5, 1);
 		Matrix* y = new Matrix(5, 2);
-		Matrix* outloss = new Matrix(1, 2);
+		Matrix* outloss = new Matrix(5, 1);
+		input->sub(input, 0);
+		y->sub(y, 0);
 		float avgl = m.forward(input, y, outloss, 0);
+
+		std::cout << avgl;
 
 		delete input;
 		delete y;

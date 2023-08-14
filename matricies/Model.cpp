@@ -97,12 +97,12 @@ namespace Oliver {
 		}
 
 		// Check that the loss dimensions are correct.
-		if (loss->cols() != m_layers.back()->outputSize()) {
+		if (loss->cols() != 1) {
 			throw NetworkException("invalid loss matrix size");
 		}
 
 		unsigned int samples = input->rows();
-		Matrix* current_input = new Matrix(samples, input->cols());
+		Matrix* current_input = input->copy();
 
 		// Perform the forward pass.
 		for (std::vector<Layer*>::iterator iter = m_layers.begin(); iter < m_layers.end(); iter++) {
