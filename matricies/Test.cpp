@@ -133,16 +133,19 @@ int main() {
 		Matrix* input = new Matrix(5, 1);
 		Matrix* y = new Matrix(5, 2);
 		Matrix* outloss = new Matrix(5, 1);
+		Matrix* output = new Matrix(5, 2);
 		input->sub(input, 0);
 		y->sub(y, 0);
 		float avgl = m.forward(input, y, outloss, 0);
 		m.backward(y, 0);
+		m.predict(input, output, 0);
 
 		std::cout << avgl;
 
 		delete input;
 		delete y;
 		delete outloss;
+		delete output;
 	}
 	catch (NetworkException e) {
 		std::cout << e.what() << std::endl;

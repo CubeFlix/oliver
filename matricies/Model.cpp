@@ -76,6 +76,43 @@ namespace Oliver {
 		m_trainable = true;
 	}
 
+	void Model::predict(Matrix* input, Matrix* output, int device) {
+		if (!m_finalized) {
+			throw NetworkException("model not finalized");
+		}
+
+		// Check that the number of samples match.
+		if (input->rows() != output->rows()) {
+			throw NetworkException("number of samples must match in input and output matricies");
+		}
+
+		// Check that the input and output dimensions are correct.
+		if (input->cols() != m_layers[0]->inputSize()) {
+			throw NetworkException("invalid input matrix size");
+		}
+		if (output->cols() != m_layers.back()->outputSize()) {
+			throw NetworkException("invalid output matrix size");
+		}
+
+		unsigned int samples = input->rows();
+		Matrix* current_input = input->copy();
+
+		// Perform the forward pass.
+		for (std::vector<Layer*>::iterator iter = m_layers.begin(); iter < m_layers.end(); iter++) {
+			// Create the output matrix and perform the forward pass.
+			Matrix* current_output = new Matrix(samples, (*iter)->outputSize());
+			(*iter)->forward(current_input, current_output, device);
+
+			// Re-create the input matrix with the output matrix data.
+			delete current_input;
+			current_input = current_output->copy();
+			delete current_output;
+		}
+
+		memcpy(output->buf(), current_input->buf(), output->rows() * output->cols() * sizeof(float));
+		delete current_input;
+	}
+
 	float Model::forward(Matrix* input, Matrix* y, Matrix* loss, int device) {
 		if (!m_finalized) {
 			throw NetworkException("model not finalized");
