@@ -24,7 +24,7 @@ namespace Oliver {
 		void finalize(Loss* l);
 		void predict(Matrix* input, Matrix* output, int device);
 		float forward(Matrix* input, Matrix* y, Matrix* loss, int device);
-		void backward(Matrix* y, Matrix* loss, int device);
+		void backward(Matrix* y, int device);
 		void train(Matrix* input, Matrix* y, unsigned int sample_size, unsigned int epochs, int device);
 	private:
 		std::vector<Layer*> m_layers;

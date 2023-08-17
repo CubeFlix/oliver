@@ -71,6 +71,7 @@ namespace Oliver {
 		for (std::vector<Layer*>::iterator iter = m_layers.begin(); iter < m_layers.end(); iter++) {
 			(*iter)->initTraining(opt);
 		}
+		m_loss->initTraining();
 
 		m_trainable = true;
 	}
@@ -122,5 +123,41 @@ namespace Oliver {
 		float avg_loss = m_loss->forward(current_input, y, loss, device);
 		delete current_input;
 		return avg_loss;
+	}
+
+	void Model::backward(Matrix* y, int device) {
+		if (!m_finalized) {
+			throw NetworkException("model not finalized");
+		}
+		if (!m_trainable) {
+			throw NetworkException("model not initialized for training");
+		}
+
+		// Check that the y dimensions are correct.
+		if (y->cols() != m_layers.back()->outputSize()) {
+			throw NetworkException("invalid y matrix size");
+		}
+
+		unsigned int samples = y->rows();
+		Matrix* current_grad = new Matrix(samples, m_loss->inputSize());
+
+		// Perform the loss pass.
+		m_loss->backward(y, current_grad, device);
+
+		// TODO: handle cross-entropy loss with softmax
+
+		// Perform the backward pass.
+		for (std::vector<Layer*>::reverse_iterator iter = m_layers.rbegin(); iter != m_layers.rend(); iter++) {
+			// Create the new gradient matrix and perform the backward pass.
+			Matrix* current_new_grad = new Matrix(samples, (*iter)->inputSize());
+			(*iter)->backward(current_grad, current_new_grad, device);
+
+			// Re-create the gradient matrix with the new gradient data.
+			delete current_grad;
+			current_grad = current_new_grad->copy();
+			delete current_new_grad;
+		}
+
+		delete current_grad;
 	}
 }

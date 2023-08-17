@@ -136,6 +136,7 @@ int main() {
 		input->sub(input, 0);
 		y->sub(y, 0);
 		float avgl = m.forward(input, y, outloss, 0);
+		m.backward(y, 0);
 
 		std::cout << avgl;
 

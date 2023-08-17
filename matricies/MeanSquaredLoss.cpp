@@ -79,6 +79,11 @@ namespace Oliver {
 			throw NetworkException("invalid loss y dimensions");
 		}
 
+		// Check that the number of samples in the input cache is correct.
+		if (y->rows() != m_inputCache->rows()) {
+			throw NetworkException("invalid number of samples in y matrix");
+		}
+
 		// Calculate -2 * (y - y_hat), average and normalize.
 		memcpy(prevGrad->buf(), m_inputCache->buf(), m_inputCache->rows() * m_inputCache->cols() * sizeof(float));
 		prevGrad->neg(device);
