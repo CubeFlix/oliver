@@ -198,7 +198,7 @@ namespace Oliver {
 		delete current_grad;
 	}
 
-	void Model::train(Matrix* input, Matrix* y, unsigned int sample_size, unsigned int epochs, std::ostream log, int device) {
+	void Model::train(Matrix* input, Matrix* y, unsigned int sample_size, unsigned int epochs, std::ostream* log, int device) {
 		if (!m_finalized) {
 			throw NetworkException("model not finalized");
 		}
@@ -221,19 +221,19 @@ namespace Oliver {
 		}
 
 		// Start the training process.
-		for (int epoch = 0; epoch < epochs; epochs++) {
+		for (int epoch = 0; epoch < epochs; epoch++) {
 			// Create the matricies used for the training.
 			Matrix* current_input = new Matrix(sample_size, input->cols());
 			Matrix* current_y = new Matrix(sample_size, y->cols());
 			Matrix* current_loss = new Matrix(sample_size, 1);
 
 			if (log) {
-				log << "Epoch " << epoch << "\n";
+				*log << "Epoch " << epoch << "\n";
 			}
 
 			for (int current_sample = 0; current_sample < samples; current_sample += sample_size) {
 				// If the buffer is too big to take in the remaining samples, create a smaller buffer.
-				if (sample_size < samples - current_sample) {
+				if (sample_size > samples - current_sample) {
 					delete current_input;
 					delete current_y;
 					delete current_loss;
@@ -243,19 +243,19 @@ namespace Oliver {
 				}
 
 				// Copy in the current input and y samples.
-				memcpy(current_input->buf(), &input->buf()[input->cols() * current_sample], current_input->rows() * input->cols());
-				memcpy(current_y->buf(), &y->buf()[y->cols() * current_sample], current_y->rows() * y->cols());
+				memcpy(current_input->buf(), &input->buf()[input->cols() * current_sample], current_input->rows() * input->cols() * sizeof(float));
+				memcpy(current_y->buf(), &y->buf()[y->cols() * current_sample], current_y->rows() * y->cols() * sizeof(float));
 
 				if (log) {
-					log << "Sample " << current_sample << "/" << samples << "\n";
+					*log << "Sample " << current_sample << "/" << samples << "\n";
 				}
 
 				// Forward and backward pass.
-				float loss = forward(current_input, y, current_loss, device);
-				backward(y, device);
+				float loss = forward(current_input, current_y, current_loss, device);
+				backward(current_y, device);
 
 				if (log) {
-					log << "Current loss: " << loss << "\n";
+					*log << "Current loss: " << loss << "\n";
 				}
 
 				// Optimize.

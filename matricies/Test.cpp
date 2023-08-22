@@ -7,10 +7,11 @@
 #include "Network.h"
 #include "Model.h"
 #include "SGDOptimizer.h"
+#include "RELULayer.h"
 
-#define SIZE 1
-#define INPUTSIZE 5
-#define OUTPUTSIZE 5
+#define SIZE 10
+#define INPUTSIZE 1
+#define OUTPUTSIZE 1
 
 using namespace Oliver;
 
@@ -72,25 +73,25 @@ int main() {
 
 		l->forward(input, output, 0);
 		std::cout << "forward layer done" << std::endl;
-		mse->forward(output, y, loss, 0);
+		float ls = mse->forward(output, y, loss, 0);
 		std::cout << "forward done" << std::endl;
 		mse->backward(y, outGrad, 0);
 		l->backward(outGrad, inGrad, 0);
 		l->update(0);
 
-		std::cout << "loss: " << loss->buf()[0] << std::endl;
+		std::cout << "loss: " << loss->buf()[0] << " " << ls << std::endl;
 		std::cout << "out[0]: " << output->buf()[0] << std::endl;
 		std::cout << "y[0]: " << y->buf()[0] << std::endl;
 
 		l->forward(input, output, 0);
 		std::cout << "forward layer done" << std::endl;
-		mse->forward(output, y, loss, 0);
+		ls = mse->forward(output, y, loss, 0);
 		std::cout << "forward done" << std::endl;
 		mse->backward(y, outGrad, 0);
 		l->backward(outGrad, inGrad, 0);
 		l->update(0);
 
-		std::cout << "loss: " << loss->buf()[0] << std::endl;
+		std::cout << "loss: " << loss->buf()[0] << " " << ls << std::endl;
 		std::cout << "out[0]: " << output->buf()[0] << std::endl;
 		std::cout << "y[0]: " << y->buf()[0] << std::endl;
 
@@ -119,32 +120,53 @@ int main() {
 		ZerosInitializer biasInit = ZerosInitializer();
 
 		Model m = Model();
-		DenseLayer* l1 = new DenseLayer(1, 5, &weightInit, &biasInit);
-		DenseLayer* l2 = new DenseLayer(5, 2, &weightInit, &biasInit);
+		DenseLayer* l1 = new DenseLayer(INPUTSIZE, 2, &weightInit, &biasInit);
+		RELULayer* l2 = new RELULayer(2);
+		DenseLayer* l3 = new DenseLayer(2, OUTPUTSIZE, &weightInit, &biasInit);
 		m.addLayer(l1);
 		m.addLayer(l2);
+		m.addLayer(l3);
 
-		MeanSquaredLoss* loss = new MeanSquaredLoss(2);
+		MeanSquaredLoss* loss = new MeanSquaredLoss(OUTPUTSIZE);
 		m.finalize(loss);
 
-		OptimizerSettings* opt = &SGDOptimizerSettings(0.01);
+		OptimizerSettings* opt = &SGDOptimizerSettings(0.05);
 		m.initTraining(opt);
 
-		Matrix* input = new Matrix(5, 1);
-		Matrix* y = new Matrix(5, 2);
-		Matrix* outloss = new Matrix(5, 1);
-		Matrix* output = new Matrix(5, 2);
-		input->sub(input, 0);
-		y->sub(y, 0);
-		float avgl = m.forward(input, y, outloss, 0);
+		Matrix* input = new Matrix(SIZE, INPUTSIZE);
+		Matrix* y = new Matrix(SIZE, OUTPUTSIZE);
+		Matrix* output = new Matrix(SIZE, OUTPUTSIZE);
+		// Matrix* outLoss = new Matrix(SIZE, 1);
+		input->buf()[0] = 1;
+		input->buf()[2] = 2;
+		input->buf()[4] = 3;
+		input->buf()[6] = 4;
+		input->buf()[8] = 5;
+		input->buf()[1] = -1;
+		input->buf()[3] = -2;
+		input->buf()[5] = -3;
+		input->buf()[7] = -4;
+		input->buf()[9] = -5;
+		y->buf()[0] = 1;
+		y->buf()[2] = 2;
+		y->buf()[4] = 3;
+		y->buf()[6] = 4;
+		y->buf()[8] = 5;
+		y->buf()[1] = 1;
+		y->buf()[3] = 2;
+		y->buf()[5] = 3;
+		y->buf()[7] = 4;
+		y->buf()[9] = 5;
+		/*float avgl = m.forward(input, y, outloss, 0);
 		m.backward(y, 0);
+		m.predict(input, output, 0);*/
+		m.train(input, y, 5, 100, &std::cout, 0);
 		m.predict(input, output, 0);
-
-		std::cout << avgl;
+		std::cout << output->buf()[0] << " " << output->buf()[1];
 
 		delete input;
 		delete y;
-		delete outloss;
+		// delete outLoss;
 		delete output;
 	}
 	catch (NetworkException e) {
