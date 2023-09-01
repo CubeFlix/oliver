@@ -231,6 +231,8 @@ namespace Oliver {
 				*log << "Epoch " << epoch << "\n";
 			}
 
+			float acc_loss = 0.0;
+			int acc_samples = 0;
 			for (int current_sample = 0; current_sample < samples; current_sample += sample_size) {
 				// If the buffer is too big to take in the remaining samples, create a smaller buffer.
 				if (sample_size > samples - current_sample) {
@@ -252,16 +254,18 @@ namespace Oliver {
 
 				// Forward and backward pass.
 				float loss = forward(current_input, current_y, current_loss, device);
+				acc_loss += loss;
+				acc_samples++;
 				backward(current_y, device);
-
-				if (log) {
-					*log << "Current loss: " << loss << "\n";
-				}
 
 				// Optimize.
 				for (std::vector<Layer*>::iterator iter = m_layers.begin(); iter < m_layers.end(); iter++) {
 					(*iter)->update(device);
 				}
+			}
+
+			if (log) {
+				*log << "Current loss: " << acc_loss / (float)(acc_samples) << "\n";
 			}
 
 			delete current_input;

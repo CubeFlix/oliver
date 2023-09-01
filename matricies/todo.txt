@@ -1,0 +1,5 @@
+TODO:
+
+[ ] cross entropy and softmax
+[ ] optimizers
+[ ] conv

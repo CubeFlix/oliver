@@ -53,7 +53,7 @@ namespace Oliver {
 		// Calculate the total averaged loss.
 		Matrix* total = new Matrix(1, 1);
 		sum(outputLoss, total, SumOverColumns, device);
-		float avgLoss = total->buf()[0];
+		float avgLoss = total->buf()[0] / (float)outputLoss->rows();
 		
 		delete temp;
 		delete total;

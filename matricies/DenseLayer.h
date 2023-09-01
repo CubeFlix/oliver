@@ -29,11 +29,11 @@ namespace Oliver {
 		unsigned int m_outputSize;
 		Initializer* m_weightInit;
 		Initializer* m_biasInit;
-		Matrix* m_weights;
-		Matrix* m_biases;
+	public:Matrix* m_weights; // TODO
+	public:Matrix* m_biases;
 		Matrix* m_inputCache;
-	public: Matrix* m_weightGrad;
-	public: Matrix* m_biasGrad;
+		Matrix* m_weightGrad;
+		Matrix* m_biasGrad;
 		Optimizer* m_weightOpt;
 		Optimizer* m_biasOpt;
 
